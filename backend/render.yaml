@@ -9,12 +9,10 @@ services:
         fromDatabase:
           name: safenet-db
           property: connectionString
-      - key: REDIS_URL
-        value: redis://red-cr9m5nqj1k6c73bgo7sg:6379
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: "[\"https://safenet-app.vercel.app\", \"http://localhost:5173\"]"
+        value: "[\"https://safenet-app.vercel.app\", \"http://localhost:5173\", \"http://localhost:3000\", \"http://localhost:8000\"]"
       - key: PYTHON_VERSION
         value: "3.11.0"
 

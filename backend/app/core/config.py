@@ -1,8 +1,11 @@
 """
 Application configuration settings.
 Uses Pydantic BaseSettings for environment variable management.
+Supports Render and Vercel deployment environments.
 """
 
+import json
+import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -10,21 +13,26 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Database
+    # Database - defaults to local; use Render Postgres in production
     DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/safenet"
     
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    # Redis - optional; graceful fallback if not available
+    REDIS_URL: str = ""
     
     # JWT
     SECRET_KEY: str = "your-super-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     
-    # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    # CORS - supports JSON string from env (Render) or Python list
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8000",
+        "https://safenet-app.vercel.app"
+    ]
     
-    # Cloudinary
+    # Cloudinary (optional for hackathon - images can use local storage)
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
@@ -32,5 +40,15 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Parse CORS_ORIGINS if it's a JSON string from environment variable
+        cors_env = os.environ.get("CORS_ORIGINS")
+        if cors_env:
+            try:
+                self.CORS_ORIGINS = json.loads(cors_env)
+            except (json.JSONDecodeError, TypeError):
+                self.CORS_ORIGINS = [cors_env]
 
 settings = Settings()
