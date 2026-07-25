@@ -50,5 +50,14 @@ class Settings(BaseSettings):
                 self.CORS_ORIGINS = json.loads(cors_env)
             except (json.JSONDecodeError, TypeError):
                 self.CORS_ORIGINS = [cors_env]
+        
+        # Fix DATABASE_URL for Render: Render provides postgres:// but we need postgresql+asyncpg://
+        db_url = os.environ.get("DATABASE_URL", self.DATABASE_URL)
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
+            db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        self.DATABASE_URL = db_url
 
 settings = Settings()
+</create_file>

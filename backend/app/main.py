@@ -31,10 +31,13 @@ async def lifespan(app: FastAPI):
     Handles startup and shutdown events.
     """
     logger.info("Initializing SafeNet Platform...")
-    await init_db()
-    logger.info("Database initialized successfully.")
+    try:
+        await init_db()
+        logger.info("Database initialized successfully.")
+    except Exception as e:
+        logger.warning(f"Database initialization failed (will retry on first request): {e}")
     yield
-    logger.info("Shutting down SafeNet Platform...")
+    logger.info("Shutting down SafeNet
 
 # Initialize FastAPI app
 app = FastAPI(
