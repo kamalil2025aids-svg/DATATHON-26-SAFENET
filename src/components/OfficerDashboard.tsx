@@ -42,7 +42,7 @@ export function OfficerDashboard() {
     ? complaints.filter(c => c.dept === user.department)
     : complaints;
 
-  const pending = deptComplaints.filter(c => c.status === "Pending" || c.status === "Verified" || c.status === "Assigned");
+const pending = deptComplaints.filter(c => c.status === "Submitted" || c.status === "Verified" || c.status === "Assigned");
   const resolved = deptComplaints.filter(c => c.status === "Completed" || c.status === "Rejected");
 
   const navItems = [

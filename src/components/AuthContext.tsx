@@ -7,12 +7,14 @@ interface User {
   role: "citizen" | "official";
   points: number;
   verifiedCount: number;
+  department?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, role: "citizen" | "official") => void;
   logout: () => void;
+  register: (name: string, email: string, role: "citizen" | "official") => void;
   updateUserPoints: (userId: string, points: number, verified: number) => void;
 }
 
@@ -29,7 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       role,
       points: 0,
-      verifiedCount: 0
+      verifiedCount: 0,
+      department: role === "official" ? "Municipal Corporation" : undefined
+    });
+  };
+
+  const register = (name: string, email: string, role: "citizen" | "official") => {
+    setUser({
+      id: crypto.randomUUID(),
+      name,
+      email,
+      role,
+      points: 50,
+      verifiedCount: 0,
+      department: role === "official" ? "Municipal Corporation" : undefined
     });
   };
 
@@ -40,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUserPoints }}>
+    <AuthContext.Provider value={{ user, login, logout, register, updateUserPoints }}>
       {children}
     </AuthContext.Provider>
   );

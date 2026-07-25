@@ -723,7 +723,7 @@ function MapView({ complaints }: { complaints: any[] }) {
 
 function NotificationsView({ complaints }: { complaints: any[] }) {
   const notifications = complaints.flatMap(c => 
-    c.timeline.map((t, i) => ({
+    c.timeline.map((t: { status: string; timestamp: string }, i: number) => ({
       id: `${c.id}-${i}`,
       title: `Report Status Updated`,
       desc: `Your ${c.category} complaint is now ${t.status}.`,
@@ -798,7 +798,7 @@ function ProfileView() {
                   <CheckCircle2 className="mr-1 h-3 w-3" /> {user?.verifiedCount || 0} Verified
                 </Badge>
                 <Badge variant="outline" className="border-amber-400/20 bg-amber-400/5 text-amber-400">
-                  <ShieldCheck className="mr-1 h-3 w-3" /> {user?.points >= 100 ? "Gold Reporter" : "New Reporter"}
+                  <ShieldCheck className="mr-1 h-3 w-3" /> {(user?.points ?? 0) >= 100 ? "Gold Reporter" : "New Reporter"}
                 </Badge>
               </div>
             </div>

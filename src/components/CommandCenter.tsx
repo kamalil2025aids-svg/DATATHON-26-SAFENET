@@ -296,17 +296,28 @@ function OverviewView({ complaints }: { complaints: Complaint[] }) {
 
 function SubmitComplaintView() {
   const { addComplaint, complaints } = useComplaints();
-  const [aiResult, setAiResult] = useState<null | Omit<Complaint, "id" | "date" | "status">>(null);
+  const [aiResult, setAiResult] = useState<null | {
+    title: string;
+    description: string;
+    severity: Complaint["severity"];
+    dept: string;
+    confidence: number;
+    category: string;
+    priority: number;
+    eta: string;
+    recommendation: string;
+    location: { lat: number; lng: number; address: string };
+  }>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [description, setDescription] = useState("");
   const [mediaAttached, setMediaAttached] = useState(false);
   const [mediaType, setMediaType] = useState<"image" | "video" | "voice" | null>(null);
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
 
   const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude, address: `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}` }),
         () => toast.error("Failed to get GPS location.")
       );
     } else {
@@ -369,8 +380,7 @@ function SubmitComplaintView() {
         priority,
         eta,
         recommendation,
-        location: location || { lat: 0, lng: 0 },
-        mediaType,
+        location: location || { lat: 0, lng: 0, address: "Unknown location" },
       });
       setAnalyzing(false);
       toast.success("AI Analysis Complete!", {
@@ -395,15 +405,20 @@ function SubmitComplaintView() {
         description: "Your report has been merged with an existing nearby incident.",
       });
     } else {
-      const newComplaint: Complaint = {
-        ...aiResult,
-        id: `RPT-${Math.floor(1000 + Math.random() * 9000)}`,
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        status: "Pending",
-      };
-      addComplaint(newComplaint);
+      addComplaint({
+        userId: "command-center",
+        category: aiResult.category,
+        location: { lat: aiResult.location.lat, lng: aiResult.location.lng, address: aiResult.location.address },
+        description: aiResult.description,
+        images: [],
+        voiceNote: null,
+        severity: aiResult.severity,
+        department: aiResult.dept,
+        confidence: aiResult.confidence,
+        resolutionTime: null,
+      });
       toast.success("Complaint submitted successfully!", {
-        description: "Routed to " + newComplaint.dept,
+        description: "Routed to " + aiResult.dept,
         icon: <Radio className="h-4 w-4 text-cyan-400" />,
       });
     }

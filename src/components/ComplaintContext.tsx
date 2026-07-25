@@ -4,25 +4,32 @@ export interface Complaint {
   id: string;
   userId: string;
   category: string;
-  location: { lat: number; lng: number; address: string };
+  title: string;
+  location: { lat: number; lng: number; address: string; source?: string };
   description: string;
   images: string[];
   voiceNote: string | null;
-  status: "Submitted" | "Verified" | "Assigned" | "In Progress" | "Completed" | "Rejected";
+  status: "Submitted" | "Verified" | "Assigned" | "In Progress" | "Completed" | "Rejected" | "Pending";
   severity: "Low" | "Medium" | "High" | "Critical" | null;
   department: string | null;
+  dept: string | null;
   confidence: number | null;
   resolutionTime: number | null;
   createdAt: string;
+  date: string;
   verifications: number;
+  priority: number;
+  eta: string;
+  recommendation: string;
+  officerNotes: string;
   timeline: { status: string; timestamp: string }[];
 }
 
 interface ComplaintContextType {
   complaints: Complaint[];
-  addComplaint: (data: Omit<Complaint, "id" | "userId" | "status" | "createdAt" | "verifications" | "timeline">) => void;
+  addComplaint: (data: Omit<Complaint, "id" | "status" | "createdAt" | "date" | "verifications" | "timeline" | "priority" | "eta" | "recommendation" | "officerNotes" | "title" | "dept">) => void;
   verifyComplaint: (id: string) => void;
-  updateComplaintStatus: (id: string, status: Complaint["status"]) => void;
+  updateComplaintStatus: (id: string, status: Complaint["status"], notes?: string, rejectionReason?: string) => void;
 }
 
 const ComplaintContext = createContext<ComplaintContextType | undefined>(undefined);
@@ -30,15 +37,21 @@ const ComplaintContext = createContext<ComplaintContextType | undefined>(undefin
 export function ComplaintProvider({ children }: { children: ReactNode }) {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
 
-  const addComplaint = (data: Omit<Complaint, "id" | "userId" | "status" | "createdAt" | "verifications" | "timeline">) => {
+  const addComplaint = (data: Omit<Complaint, "id" | "status" | "createdAt" | "date" | "verifications" | "timeline" | "priority" | "eta" | "recommendation" | "officerNotes" | "title" | "dept">) => {
     setComplaints(prev => [
       {
         ...data,
-        id: crypto.randomUUID(),
-        userId: "current",
-        status: "Submitted",
+        id: `RPT-${Date.now()}`,
+        title: data.category,
+        dept: data.department || "",
+        date: new Date().toISOString().split('T')[0],
         createdAt: new Date().toISOString(),
+        status: "Submitted" as Complaint["status"],
         verifications: 0,
+        priority: Math.floor(Math.random() * 50) + 50,
+        eta: "2-4 hours",
+        recommendation: "AI analysis pending. Initial review recommended.",
+        officerNotes: "",
         timeline: [{ status: "Submitted", timestamp: new Date().toISOString() }]
       },
       ...prev
@@ -66,13 +79,14 @@ export function ComplaintProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const updateComplaintStatus = (id: string, status: Complaint["status"]) => {
+  const updateComplaintStatus = (id: string, status: Complaint["status"], notes?: string, rejectionReason?: string) => {
     setComplaints(prev =>
       prev.map(c => {
         if (c.id === id) {
           return {
             ...c,
             status,
+            officerNotes: notes || c.officerNotes,
             timeline: [...c.timeline, { status, timestamp: new Date().toISOString() }]
           };
         }

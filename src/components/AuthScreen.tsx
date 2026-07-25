@@ -10,7 +10,7 @@ import { ShieldCheck, Mail, Lock, User as UserIcon } from "lucide-react";
 export function AuthScreen() {
   const { login, register } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [role, setRole] = useState<"citizen" | "officer">("citizen");
+  const [role, setRole] = useState<"citizen" | "official">("citizen");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -80,9 +80,9 @@ export function AuthScreen() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole("officer")}
+                  onClick={() => setRole("official")}
                   className={`rounded-lg border py-2 text-xs font-medium transition ${
-                    role === "officer" ? "border-cyan-400/20 bg-cyan-400/5 text-cyan-400" : "border-white/5 text-slate-400 hover:bg-white/5"
+                    role === "official" ? "border-cyan-400/20 bg-cyan-400/5 text-cyan-400" : "border-white/5 text-slate-400 hover:bg-white/5"
                   }`}
                 >
                   Government Official
