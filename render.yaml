@@ -2,9 +2,9 @@ services:
   - type: web
     name: safenet-backend
     env: python
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    workingDirectory: backend
+    workingDir: backend
     envVars:
       - key: DATABASE_URL
         fromDatabase:
