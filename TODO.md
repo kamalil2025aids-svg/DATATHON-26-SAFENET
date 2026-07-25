@@ -1,25 +1,25 @@
-# Deployment TODO ✅
+# Deployment TODO
 
 ## ✅ Step 1: Commit & Push changes to GitHub
-- [x] All changes pushed to `main` branch
+- [x] Stage all changes
+- [x] Commit with message "Deployment preparation - updated components"
+- [x] Push to GitHub
 
 ## ✅ Step 2: Deploy Frontend to Vercel
-- [x] **Live at:** https://safenet-app-one.vercel.app (HTTP 200)
+- [x] Connected GitHub repo to Vercel
+- [x] Frontend live at **https://safenet-app-one.vercel.app**
 
-## ✅ Step 3: Fixed render.yaml location
-- [x] Created `render.yaml` at **root** of repo (Render requires this)
-- [x] Uses `workingDirectory: backend` to run from `backend/` folder
-- [x] Removed old `backend/render.yaml` to avoid confusion
-- [x] Pushed to GitHub — ready for Render Blueprint import
+## Step 3: Deploy Backend to Render (IN PROGRESS)
+- [x] Created `render.yaml` at repo root with correct config
+- [x] Added `sourceDir: backend` to point to backend/ subdirectory
+- [x] Added `plan: free` and `healthCheckPath: /`
+- [ ] User needs to try Blueprint deployment again in Render Dashboard
 
-## ☐ Step 4: Deploy Backend via Render Dashboard
-- [ ] Go to https://dashboard.render.com
-- [ ] Click **"New +" → "Blueprint"**
-- [ ] Select repo `kamalil2025aids-svg/DATATHON-26-SAFENET`
-- [ ] Blueprint path: `render.yaml` (default, now at root!)
-- [ ] Click **"Apply"** — creates Web Service + PostgreSQL
+## Step 4: Configure Environment Variables
+- [ ] Verify CORS_ORIGINS includes frontend URL
+- [ ] Verify VITE_API_URL in Vercel points to Render backend
 
-## ☐ Step 5: Post-Deployment
-- [ ] Update `VITE_API_URL` in Vercel with actual Render URL
-- [ ] Test login flow
+## Step 5: Verify Deployment
+- [ ] Frontend accessible at Vercel URL
+- [ ] Backend health check at Render URL
 
