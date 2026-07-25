@@ -14,7 +14,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: "[\"https://safenet-app-one.vercel.app\", \"http://localhost:5173\", \"http://localhost:3000\", \"http://localhost:8000\"]"
+        value: "[\"https://datathon-26-safenet-376u.vercel.app\", \"https://safenet-app-one.vercel.app\", \"http://localhost:5173\", \"http://localhost:3000\", \"http://localhost:8000\"]"
       - key: PYTHON_VERSION
         value: "3.11.0"
       - key: REDIS_URL
