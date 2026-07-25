@@ -6,9 +6,9 @@ Provides WebSocket endpoint for live complaint status updates.
 import json
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.services.notification_service import redis_client
+from app.services.notification_service import get_redis_client
 
-router = APIRouter(prefix="/api/v1/ws", tags=["Real-time Tracking"])
+router = APIRouter(tags=["Real-time Tracking"])
 logger = logging.getLogger(__name__)
 
 class ConnectionManager:
@@ -27,27 +27,44 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@router.websocket("/track")
+@router.websocket("/ws/track")
 async def websocket_endpoint(websocket: WebSocket):
     """
     WebSocket endpoint for real-time complaint tracking.
     Subscribes to Redis pub/sub for live updates.
+    Gracefully handles missing Redis.
     """
     await manager.connect(websocket)
     
-    # Subscribe to Redis pub/sub
-    pubsub = redis_client.pubsub()
-    await pubsub.subscribe("complaint_updates")
+    redis_client = await get_redis_client()
     
-    try:
-        # Listen for messages
-        async for message in pubsub.listen():
-            if message["type"] == "message":
-                await websocket.send_text(message["data"])
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await pubsub.unsubscribe("complaint_updates")
-        logger.info("WebSocket disconnected and unsubscribed.")
-    except Exception as e:
-        logger.error(f"WebSocket error: {e}")
-        manager.disconnect(websocket)
+    if redis_client is not None:
+        try:
+            pubsub = redis_client.pubsub()
+            await pubsub.subscribe("complaint_updates")
+            try:
+                async for message in pubsub.listen():
+                    if message["type"] == "message":
+                        await websocket.send_text(message["data"])
+            except WebSocketDisconnect:
+                manager.disconnect(websocket)
+                await pubsub.unsubscribe("complaint_updates")
+                logger.info("WebSocket disconnected and unsubscribed.")
+            except Exception as e:
+                logger.error(f"WebSocket error: {e}")
+                manager.disconnect(websocket)
+        except Exception as e:
+            logger.warning(f"Redis pub/sub unavailable, WebSocket running in polling mode: {e}")
+            # Fallback: just keep connection alive
+            try:
+                while True:
+                    await websocket.receive_text()
+            except WebSocketDisconnect:
+                manager.disconnect(websocket)
+    else:
+        # No Redis - keep connection alive without live updates
+        try:
+            while True:
+                await websocket.receive_text()
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)

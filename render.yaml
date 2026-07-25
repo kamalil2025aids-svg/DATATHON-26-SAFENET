@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend
+    startCommand: cd backend && bash start.sh
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
@@ -17,6 +17,8 @@ services:
         value: "[\"https://safenet-app-one.vercel.app\", \"http://localhost:5173\", \"http://localhost:3000\", \"http://localhost:8000\"]"
       - key: PYTHON_VERSION
         value: "3.11.0"
+      - key: REDIS_URL
+        value: ""
 
 databases:
   - name: safenet-db

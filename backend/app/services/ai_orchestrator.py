@@ -55,7 +55,7 @@ async def run_ai_pipeline(description: str, image_path: str = None, existing_com
     final_confidence = max(vision_confidence, 85.0)  # Ensure minimum confidence
     
     return {
-        "category": nlp_result["department"],  # Wait, category should be the hazard, not department
+        "category": detected_category or nlp_result.get("category", "Road Damage"),
         "severity": nlp_result["severity"],
         "department": nlp_result["department"],
         "confidence": final_confidence,
