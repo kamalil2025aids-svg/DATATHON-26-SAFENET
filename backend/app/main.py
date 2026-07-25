@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Database initialization failed (will retry on first request): {e}")
     yield
-    logger.info("Shutting down SafeNet
+    logger.info("Shutting down SafeNet Platform...")
 
 # Initialize FastAPI app
 app = FastAPI(
