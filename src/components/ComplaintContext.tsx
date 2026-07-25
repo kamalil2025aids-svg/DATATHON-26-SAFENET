@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface Complaint {
   id: string;
@@ -35,7 +35,19 @@ interface ComplaintContextType {
 const ComplaintContext = createContext<ComplaintContextType | undefined>(undefined);
 
 export function ComplaintProvider({ children }: { children: ReactNode }) {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [complaints, setComplaints] = useState<Complaint[]>(() => {
+    try {
+      const saved = localStorage.getItem("safenet_complaints");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist complaints to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("safenet_complaints", JSON.stringify(complaints));
+  }, [complaints]);
 
   const addComplaint = (data: Omit<Complaint, "id" | "status" | "createdAt" | "date" | "verifications" | "timeline" | "priority" | "eta" | "recommendation" | "officerNotes" | "title" | "dept">) => {
     setComplaints(prev => [
