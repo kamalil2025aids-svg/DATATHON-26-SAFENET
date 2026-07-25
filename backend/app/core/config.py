@@ -60,4 +60,3 @@ class Settings(BaseSettings):
         self.DATABASE_URL = db_url
 
 settings = Settings()
-</create_file>
